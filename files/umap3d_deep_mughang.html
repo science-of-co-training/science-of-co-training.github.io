@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <script>
+    (function() {
+      var getContext = HTMLCanvasElement.prototype.getContext;
+      HTMLCanvasElement.prototype.getContext = function(type, attrs) {
+        if (type === '2d') {
+          attrs = (attrs && typeof attrs === 'object') ? Object.assign({ willReadFrequently: true }, attrs) : { willReadFrequently: true };
+          return getContext.call(this, type, attrs);
+        }
+        return getContext.apply(this, arguments);
+      };
+    })();
+  </script>
+  <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 16px; font-family: 'Source Sans 3', -apple-system, sans-serif; background: #fefbf7; }
+    .umap-title { text-align: center; font-size: 1.05rem; font-weight: 600; color: #1a1a1a; margin-bottom: 18px; letter-spacing: 0.02em; }
+    .umap-btn-row { display: flex; justify-content: center; margin-bottom: 22px; width: 100%; max-width: 720px; margin-left: auto; margin-right: auto; }
+    .segmented-btn-group {
+      position: relative; display: flex; width: 100%; min-height: 48px;
+      border-radius: 10px; overflow: hidden;
+      border: 1px solid rgba(0, 0, 0, 0.06); background: #f8f9fa;
+      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+    }
+    .segmented-btn-slider {
+      position: absolute; left: 0; top: 0; height: 100%;
+      width: calc(100% / var(--segmented-count, 8));
+      transform: translateX(calc(var(--segmented-active, 0) * 100%));
+      transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      background: linear-gradient(180deg, #be7457 0%, #c37658 100%); border-radius: 8px;
+      pointer-events: none; z-index: 0;
+    }
+    .segmented-btn {
+      position: relative; z-index: 1; flex: 1;
+      padding: 0.6rem 0.5rem; font-size: 0.9rem; font-weight: 500;
+      border: none; background: transparent; color: #555;
+      cursor: pointer; transition: color 0.2s ease; font-family: inherit;
+    }
+    .segmented-btn:hover:not(.is-active) { color: #a84822; }
+    .segmented-btn.is-active { color: #fff; }
+    .umap-plot-container { display: flex; justify-content: center; width: 100%; }
+    #plotly-umap { width: 100%; max-width: 720px; height: 520px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); background: #fef9f3; }
+    .umap-loading { text-align: center; color: #6b7280; padding: 2rem; }
+    .umap-error { color: #b54848; padding: 1rem; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="umap-title"Global Alignment — UMAP</div>
+  <div class="umap-btn-row">
+    <div class="segmented-btn-group" role="group" aria-label="Mixing ratio" style="--segmented-count: 8; --segmented-active: 3;">
+      <div class="segmented-btn-slider" aria-hidden="true"></div>
+      <button class="segmented-btn" data-ratio="0.0" type="button">w = 0.0</button>
+      <button class="segmented-btn" data-ratio="0.005" type="button">w = 0.005</button>
+      <button class="segmented-btn" data-ratio="0.016" type="button">w = 0.016</button>
+      <button class="segmented-btn is-active" data-ratio="0.1" type="button">w = 0.1</button>
+      <button class="segmented-btn" data-ratio="0.3" type="button">w = 0.3</button>
+      <button class="segmented-btn" data-ratio="0.5" type="button">w = 0.5</button>
+      <button class="segmented-btn" data-ratio="0.8" type="button">w = 0.8</button>
+      <button class="segmented-btn" data-ratio="1.0" type="button">w = 1.0</button>
+    </div>
+  </div>
+  <div class="umap-plot-container">
+    <div id="plotly-umap" class="umap-loading"></div>
+  </div>
+
+  <script>
+(function() {
+  var DATA_DIR = 'umap_data_deep/mughang';
+  var RATIOS = ['0.0', '0.005', '0.016', '0.1', '0.3', '0.5', '0.8', '1.0'];
+  var dataByRatio = {};
+  var plotDiv = document.getElementById('plotly-umap');
+
+  var sceneOpts = {
+    xaxis: { showgrid: true, gridcolor: 'rgba(0.35,0.35,0.4,0.45)', showticklabels: true, showline: true, zeroline: false, backgroundcolor: '#fef9f3' },
+    yaxis: { showgrid: true, gridcolor: 'rgba(0.35,0.35,0.4,0.45)', showticklabels: true, showline: true, zeroline: false, backgroundcolor: '#fef9f3' },
+    zaxis: { showgrid: true, gridcolor: 'rgba(0.35,0.35,0.4,0.45)', showticklabels: true, showline: true, zeroline: false, backgroundcolor: '#fef9f3' },
+    aspectmode: 'cube',
+    camera: { eye: { x: 1.5, y: 1.5, z: 1.0 }, projection: { type: 'perspective' } },
+    bgcolor: '#fef9f3'
+  };
+
+  function makeTrace(name, x, y, z, color) {
+    return {
+      x: x, y: y, z: z,
+      mode: 'markers',
+      name: name,
+      type: 'scatter3d',
+      marker: { size: 1, color: color, opacity: 0.9, line: { width: 0 } },
+      hovertemplate: name + '<br>x=%{x:.3f}<br>y=%{y:.3f}<br>z=%{z:.3f}<extra></extra>'
+    };
+  }
+
+  function buildPlotData(json) {
+    return [
+      makeTrace('Real', json.real.x, json.real.y, json.real.z, '#b54848'),
+      makeTrace('Sim', json.sim.x, json.sim.y, json.sim.z, '#3b6c9e')
+    ];
+  }
+
+  function plot(ratio) {
+    var d = dataByRatio[ratio];
+    if (!d) return;
+    plotDiv.classList.remove('umap-loading');
+    var plotData = buildPlotData(d);
+    var layout = {
+      scene: sceneOpts,
+      margin: { l: 0, r: 0, t: 40, b: 0 },
+      legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'center', x: 0.5, font: { size: 14 } },
+      paper_bgcolor: '#fefbf7',
+      width: 720,
+      height: 520,
+      autosize: true
+    };
+    if (plotDiv.data) {
+      Plotly.react(plotDiv, plotData, layout, { responsive: true });
+    } else {
+      Plotly.newPlot(plotDiv, plotData, layout, { responsive: true });
+    }
+  }
+
+  function selectRatio(ratio) {
+    var btns = document.querySelectorAll('.segmented-btn[data-ratio]');
+    var group = document.querySelector('.segmented-btn-group');
+    btns.forEach(function(b, i) {
+      b.classList.remove('is-active');
+      if (b.getAttribute('data-ratio') === ratio) {
+        b.classList.add('is-active');
+        if (group) group.style.setProperty('--segmented-active', i);
+      }
+    });
+    plot(ratio);
+  }
+
+  function loadAll() {
+    var pending = RATIOS.length;
+    if (pending === 0) {
+      plot(RATIOS[3]);
+      return;
+    }
+    RATIOS.forEach(function(ratio) {
+      fetch(DATA_DIR + '/' + ratio + '.json')
+        .then(function(r) { return r.json(); })
+        .then(function(json) {
+          dataByRatio[ratio] = json;
+          pending--;
+          if (pending === 0) {
+            plot(RATIOS[3]);
+            document.querySelectorAll('.segmented-btn[data-ratio]').forEach(function(btn) {
+              btn.addEventListener('click', function() {
+                selectRatio(this.getAttribute('data-ratio'));
+              });
+            });
+          }
+        })
+        .catch(function(err) {
+          plotDiv.classList.add('umap-error');
+          plotDiv.classList.remove('umap-loading');
+          plotDiv.textContent = 'Failed to load ' + ratio + '.json: ' + err.message;
+        });
+    });
+  }
+
+  if (typeof Plotly !== 'undefined') {
+    loadAll();
+  } else {
+    window.addEventListener('load', loadAll);
+  }
+})();
+  </script>
+</body>
+</html>

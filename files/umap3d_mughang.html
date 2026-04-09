@@ -17,34 +17,33 @@
   <script src="https://cdn.plot.ly/plotly-2.27.0.min.js"></script>
   <style>
     * { box-sizing: border-box; }
-    body { margin: 0; padding: 16px; font-family: 'Source Sans 3', -apple-system, sans-serif; background: #fefbf7; }
-    .umap-title { text-align: center; font-size: 1.05rem; font-weight: 600; color: #1a1a1a; margin-bottom: 18px; letter-spacing: 0.02em; }
-    .umap-btn-row { display: flex; justify-content: center; margin-bottom: 22px; width: 100%; max-width: 720px; margin-left: auto; margin-right: auto; }
+    body { margin: 0; padding: 0; font-family: 'Source Sans 3', -apple-system, sans-serif; background: transparent; border: 1px dashed rgba(0,0,0,0.15); }
+    .umap-title { text-align: center; font-size: 1.0rem; font-weight: 600; color: #1a1a1a; margin: 8px 0 10px; letter-spacing: 0.02em; }
+    .umap-btn-row { display: flex; justify-content: center; margin: 8px auto 12px; width: 100%; max-width: 100%; }
     .segmented-btn-group {
-      position: relative; display: flex; width: 100%; min-height: 48px;
-      border-radius: 10px; overflow: hidden;
-      border: 1px solid rgba(0, 0, 0, 0.06); background: #f8f9fa;
-      box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+      position: relative; display: flex; width: 100%; max-width: 720px; min-height: 44px;
+      border-radius: 8px; overflow: hidden;
+      border: 1px solid rgba(0,0,0,0.08); background: #fff;
     }
     .segmented-btn-slider {
       position: absolute; left: 0; top: 0; height: 100%;
       width: calc(100% / var(--segmented-count, 8));
       transform: translateX(calc(var(--segmented-active, 0) * 100%));
       transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      background: linear-gradient(180deg, #be7457 0%, #c37658 100%); border-radius: 8px;
+      background: #c75a2e; border-radius: 8px; opacity: 1;
       pointer-events: none; z-index: 0;
     }
     .segmented-btn {
       position: relative; z-index: 1; flex: 1;
-      padding: 0.6rem 0.5rem; font-size: 0.9rem; font-weight: 500;
-      border: none; background: transparent; color: #555;
+      padding: 0.55rem 0.5rem; font-size: 0.88rem; font-weight: 600;
+      border: none; background: transparent; color: #666;
       cursor: pointer; transition: color 0.2s ease; font-family: inherit;
     }
-    .segmented-btn:hover:not(.is-active) { color: #a84822; }
+    .segmented-btn:hover:not(.is-active) { color: #1a1a1a; }
     .segmented-btn.is-active { color: #fff; }
     .umap-plot-container { display: flex; justify-content: center; width: 100%; }
-    #plotly-umap { width: 100%; max-width: 720px; height: 520px; border-radius: 12px; box-shadow: 0 4px 20px rgba(0,0,0,0.08); background: #fef9f3; }
-    .umap-loading { text-align: center; color: #6b7280; padding: 2rem; }
+    #plotly-umap { width: 100%; max-width: 100%; height: 520px; border-radius: 0; box-shadow: none; background: transparent; }
+    .umap-loading { text-align: center; color: #6b7280; padding: 1rem; }
     .umap-error { color: #b54848; padding: 1rem; text-align: center; }
   </style>
 </head>
@@ -75,12 +74,12 @@
   var plotDiv = document.getElementById('plotly-umap');
 
   var sceneOpts = {
-    xaxis: { showgrid: true, gridcolor: 'rgba(0.35,0.35,0.4,0.45)', showticklabels: true, showline: true, zeroline: false, backgroundcolor: '#fef9f3' },
-    yaxis: { showgrid: true, gridcolor: 'rgba(0.35,0.35,0.4,0.45)', showticklabels: true, showline: true, zeroline: false, backgroundcolor: '#fef9f3' },
-    zaxis: { showgrid: true, gridcolor: 'rgba(0.35,0.35,0.4,0.45)', showticklabels: true, showline: true, zeroline: false, backgroundcolor: '#fef9f3' },
+    xaxis: { showgrid: true, gridcolor: 'rgba(0,0,0,0.15)', showticklabels: true, showline: false, zeroline: false, backgroundcolor: 'rgba(0,0,0,0)' },
+    yaxis: { showgrid: true, gridcolor: 'rgba(0,0,0,0.15)', showticklabels: true, showline: false, zeroline: false, backgroundcolor: 'rgba(0,0,0,0)' },
+    zaxis: { showgrid: true, gridcolor: 'rgba(0,0,0,0.15)', showticklabels: true, showline: false, zeroline: false, backgroundcolor: 'rgba(0,0,0,0)' },
     aspectmode: 'cube',
     camera: { eye: { x: 1.5, y: 1.5, z: 1.0 }, projection: { type: 'perspective' } },
-    bgcolor: '#fef9f3'
+    bgcolor: 'rgba(0,0,0,0)'
   };
 
   function makeTrace(name, x, y, z, color) {
@@ -108,10 +107,10 @@
     var plotData = buildPlotData(d);
     var layout = {
       scene: sceneOpts,
-      margin: { l: 0, r: 0, t: 40, b: 0 },
+      margin: { l: 0, r: 0, t: 30, b: 0 },
       legend: { orientation: 'h', yanchor: 'bottom', y: 1.02, xanchor: 'center', x: 0.5, font: { size: 14 } },
-      paper_bgcolor: '#fefbf7',
-      width: 720,
+      paper_bgcolor: 'rgba(0,0,0,0)',
+      width: undefined,
       height: 520,
       autosize: true
     };

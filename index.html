@@ -467,11 +467,11 @@
 
     /* ========== Interactive Panels ========== */
     .interactive-panel {
-      background: var(--color-bg-subtle);
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      padding: 2rem;
-      margin: 2.5rem 0;
+      background: transparent;
+      border: 1px dashed var(--color-border);
+      border-radius: var(--radius-md);
+      padding: 0;
+      margin: 2rem 0;
     }
 
     /* ========== Segmented Button Group ========== */
@@ -554,7 +554,8 @@
       display: block;
       width: 100%;
       border-radius: var(--radius-md);
-      box-shadow: var(--shadow-md);
+      box-shadow: none;
+      border: none;
       transition: opacity 0.3s ease;
     }
     .video-col video.sampling-video-fadeout { opacity: 0; }
@@ -580,7 +581,8 @@
     .video-comparison-col video {
       width: 100%;
       border-radius: var(--radius-md);
-      box-shadow: var(--shadow-md);
+      box-shadow: none;
+      border: none;
     }
 
     /* ========== Methods Grid ========== */
@@ -726,16 +728,16 @@
     .umap3d-iframe {
       width: 100%;
       height: 620px;
-      border: 1px solid var(--color-border);
-      border-radius: var(--radius-lg);
-      background: #fff;
-      box-shadow: var(--shadow-md);
+      border: none;
+      border-radius: var(--radius-md);
+      background: transparent;
+      box-shadow: none;
     }
     .umap3d-caption {
       text-align: center;
       font-size: 0.88rem;
       color: var(--color-text-tertiary);
-      margin-top: 0.75rem;
+      margin-top: 0.5rem;
       font-style: italic;
     }
 
@@ -968,8 +970,9 @@
 
         <h3>What We Do</h3>
         <p>
-          We investigate the working principles of sim-and-real co-training through theoretical analysis and empirical study, and identify <strong>two intrinsic effects</strong> governing performance improvement.
-          We validate these effects with controlled experiments on a toy model and extensive sim-and-sim and sim-and-real robotic manipulation experiments. Our analysis provides a unified interpretation of recent co-training techniques and motivates a simple combination of methods that achieves consistent improvements over prior approaches.
+          We investigate the working principles of sim-and-real co-training through theoretical analysis and multi-layered empirical study, and identify <strong>structured representation alignment</strong> as the primary intrinsic effect governing performance improvement.
+          We validate these effects with controlled toy model experiments and extensive sim-and-sim and sim-and-real robotic manipulation experiments. 
+          Our analysis provides a unified interpretation of recent co-training techniques and motivates a simple method that achieves consistent improvements over prior approaches.
         </p>
       </div>
       
@@ -980,7 +983,7 @@
         </div>
         <div class="highlight-box">
           <p>
-            More broadly, the hope is to provide a closer look at the surface of co-training, and to potentially encourage the community to push this important but hard to achieve direction forward together.
+            More broadly, the goal is to provide a closer look beyond the surface of co-training, and to firmly encourage the community to push this important but hard to achieve direction forward together.
           <br>
           <br>
             You can jump to the <a href="#takeaway">Takeaways</a> to learn the key insights.
@@ -1005,7 +1008,8 @@
           <span class="effect-card-number">1</span>
           <h4>Structured Representation Alignment</h4>
           <p>
-            A balance between cross-domain representation alignment and domain-specific discernibility. Alignment enables transfer of task-relevant knowledge from surrogate data; discernibility allows actions to adapt to the real world.
+            A balance between cross-domain representation alignment and domain-specific discernibility. Alignment enables transfer of task-relevant knowledge from surrogate domain; 
+            discernibility allows actions to adapt to the target domain.
           </p>
           <span class="effect-stat">Explains ~50% of loss variance</span>
         </div>
@@ -1124,7 +1128,7 @@
       <div class="prose">
         <div class="highlight-box">
           <p>
-            Structured Reprsentation Alignment is the main intrinsic effect that governs the performance of co-training.
+            Structured Reprsentation Alignment is the primary intrinsic effect that governs the performance of co-training.
           </p>
         </div>
       </div>
@@ -1192,6 +1196,21 @@
 
       <div class="figure" style="margin-top: 2rem;">
         <img src="images/sim2sim_gap_success_rates_with_ci.svg" alt="correlation" class="figure-wide" style="width: 120%;">
+      </div>
+
+      <div class="prose">
+        <h3>Existence of Three Representation Regimes</h3>
+        <p>
+          We introduce an additional and complementary control knob via discriminator regularization, which directly modulates domain discernibility. 
+          Specifically, we train models with discriminator loss weights of $\{0, 0.05, 0.5\}$, and within each setting sweep the mixing ratio to vary alignment.
+        </p>
+        <p>
+          We can observe distinct behavior patterns in three regimes: (1) negative correlation in overlapping regime; (2) weak positive correlation in structured aligned regime; (3) strong positive correlation in disjoint regime.
+        </p>
+      </div>
+
+      <div class="figure" style="margin-top: 2rem;">
+        <img src="images/three_regimes_2x2.svg" alt="correlation" class="figure-wide" style="width: 100%;">
       </div>
 
     </section>
@@ -1271,75 +1290,75 @@
           <tbody>
             <tr>
               <td>Real-Only</td>
-              <td colspan="3">6 / 15</td>
-              <td colspan="3">4 / 15</td>
-              <td colspan="3">3 / 15</td>
-              <td>4.3 / 15</td>
+              <td colspan="3">11 / 30</td>
+              <td colspan="3">8 / 30</td>
+              <td colspan="3">6 / 30</td>
+              <td>8.6 / 30</td>
             </tr>
             <tr>
               <td>Co-Training</td>
-              <td class="cell-best">9 / 15</td>
-              <td>6 / 15</td>
-              <td>7 / 15</td>
-              <td class="cell-best">9 / 15</td>
-              <td>5 / 15</td>
-              <td>4 / 15</td>
-              <td>3 / 15</td>
-              <td class="cell-best">6 / 15</td>
-              <td>4 / 15</td>
-              <td>8 / 15</td>
+              <td class="cell-best">17 / 30</td>
+              <td>11 / 30</td>
+              <td>16 / 30</td>
+              <td class="cell-best">16 / 30</td>
+              <td>9 / 30</td>
+              <td>7 / 30</td>
+              <td>8 / 30</td>
+              <td class="cell-best">13 / 30</td>
+              <td>7 / 30</td>
+              <td>15.3 / 30</td>
             </tr>
             <tr>
               <td>&ensp;+ OT</td>
-              <td>6 / 15</td>
-              <td class="cell-best">8 / 15</td>
-              <td>3 / 15</td>
-              <td>4 / 15</td>
-              <td>6 / 15</td>
-              <td class="cell-best">8 / 15</td>
-              <td class="cell-best">5 / 15</td>
-              <td>5 / 15</td>
-              <td>1 / 15</td>
-              <td>7 / 15</td>
+              <td>15 / 30</td>
+              <td class="cell-best">17 / 30</td>
+              <td>11 / 30</td>
+              <td>8 / 30</td>
+              <td>15 / 30</td>
+              <td class="cell-best">15 / 30</td>
+              <td class="cell-best">11 / 30</td>
+              <td>9 / 30</td>
+              <td>4 / 30</td>
+              <td>14.3 / 30</td>
             </tr>
             <tr>
               <td>&ensp;+ ADDA</td>
-              <td class="cell-best">7 / 15</td>
-              <td>6 / 15</td>
-              <td>7 / 15</td>
-              <td>3 / 15</td>
-              <td class="cell-best">7 / 15</td>
-              <td>6 / 15</td>
-              <td>6 / 15</td>
-              <td class="cell-best">7 / 15</td>
-              <td>4 / 15</td>
-              <td>7 / 15</td>
+              <td class="cell-best">13 / 30</td>
+              <td>13 / 30</td>
+              <td>15 / 30</td>
+              <td>6 / 30</td>
+              <td class="cell-best">14 / 30</td>
+              <td>11 / 30</td>
+              <td>10 / 30</td>
+              <td class="cell-best">14 / 30</td>
+              <td>7 / 30</td>
+              <td>14.3 / 30</td>
             </tr>
             <tr>
               <td>&ensp;+ CFG</td>
-              <td class="cell-best">7 / 15</td>
-              <td>6 / 15</td>
-              <td>7 / 15</td>
-              <td>4 / 15</td>
-              <td class="cell-best">9 / 15</td>
-              <td>7 / 15</td>
-              <td>4 / 15</td>
-              <td>5 / 15</td>
-              <td class="cell-best">8 / 15</td>
-              <td>8 / 15</td>
+              <td class="cell-best">15 / 30</td>
+              <td>14 / 30</td>
+              <td>11 / 30</td>
+              <td>6 / 30</td>
+              <td class="cell-best">17 / 30</td>
+              <td>14 / 30</td>
+              <td>8 / 30</td>
+              <td>14 / 30</td>
+              <td class="cell-best">10 / 30</td>
+              <td>15.3 / 30</td>
             </tr>
             <tr class="row-highlight">
               <td><strong>+ CFG-ADDA</strong></td>
-              <td class="cell-best">12 / 15</td>
-              <td>7 / 15</td>
-              <td>10 / 15</td>
-              <td>6 / 15</td>
-              <td class="cell-best">12 / 15</td>
-              <td>9 / 15</td>
-              <td class="cell-best">10 / 15</td>
-              <td>7 / 15</td>
-              <td>3 / 15</td>
-              <td class="cell-best">11 / 15</td>
+              <td class="cell-best">23 / 30</td>
+              <td>15 / 30</td>
+              <td>18 / 30</td>
+              <td>11 / 30</td>
+              <td class="cell-best">22 / 30</td>
+              <td>17 / 30</td>
+              <td class="cell-best">18 / 30</td>
+              <td>15 / 30</td>
+              <td>8 / 30</td>
+              <td class="cell-best">21 / 30</td>
             </tr>
           </tbody>
         </table>
@@ -1407,12 +1426,35 @@
       <div class="prose" style="margin-top: 2.5rem;">
         <h2>Takeaways</h2>
         <ol>
-          <li><strong>Two intrinsic effects in co-training: structured representation alignment and importance reweighting.</strong> Structured representation alignment influences the latent condition space, while importance reweighting modulates the conditional action space.</li>
-          <li><strong>Structured representation alignment is the primary driver</strong> of co-training performance, while importance reweighting serves a modulatory role.</li>
-          <li><strong>Both alignment and discernibility are necessary:</strong> representation alignment correlates with performance, while blind alignment without domain awareness leads to negative transfer, especially under physics domain gaps.</li>
-          <li><strong>Representation alignment can be learned implicitly and progressively</strong> with balanced mixing ratios without any explicit alignment objective: from local geometry alignment in shallow layers to global alignment in deep layers.</li>
-          <li><strong>Achieving balance between alignment and discernibility</strong> can stably and substantially improve over prior methods.</li>
+          <li><strong>Primary intrinsic effect in co-training: structured representation alignment:</strong> Structured representation alignment influences the latent condition space, while importance reweighting modulates the conditional action space.</li>
+          <li><strong>Both alignment and discernibility are necessary:</strong> representation alignment correlates with performance, while blind alignment without domain awareness leads to negative transfer, especially with the existence of physics domain gaps.</li>
+          <li><strong>Representation alignment can be learned implicitly and progressively:</strong> with balanced mixing ratios without any explicit alignment objective: from local geometry alignment in shallow layers to global alignment in deep layers.</li>
+          <!-- <li><strong>Enhancing structured alignment in representation space:</strong> can stably and substantially improve over prior methods.</li> -->
+          <li><strong>A principled guideline for mixing ratio selection.</strong> We also provide a coarse range of balanced mixing ratios, which we believe can be a useful starting point for future large-scale co-training experiments, narrowing down the search space.</li>
         </ol>
+
+        <details style="margin: 1rem 0;">
+          <summary style="cursor: pointer; font-weight: 600; color: var(--color-link);">Algorithm: Guideline for Co-Training Mixing Ratio Selection</summary>
+          <div style="margin-top: 0.75rem;">
+            <p style="margin-bottom: 0.75rem;">
+              Given source dataset size $N$ and target dataset size $M$ with $M &gt; N$, optionally with desired target contribution $q$ (e.g., $q=0.8$), this procedure outputs a narrowed search range $(w_n, w_q)$ for the mixing ratio.
+            </p>
+            <ol style="margin: 0 0 0.75rem 1.25rem;">
+              <li>Compute the natural mixing ratio:
+                <div style="text-align:center; margin: 0.5rem 0;">$$w_n = \frac{N}{N + M}.$$</div>
+                Use $w_n$ as the lower bound.</li>
+              <li>If $M/N &gt; 5$ (target much larger than source), set the upper bound as:
+                <div style="text-align:center; margin: 0.5rem 0;">$$w_q = \sqrt{\frac{N}{M}}.$$</div>
+              </li>
+              <li>Else, set a desired target contribution ratio $q$ (e.g., $q=0.8$) and compute:
+                <div style="text-align:center; margin: 0.5rem 0;">$$w_q = \frac{N \cdot q}{(1-q)\cdot M + N \cdot q}.$$</div>
+                Optionally cap the upper bound at $0.5$ (often sufficient in practice).</li>
+              <li>Adjust both $w_n$ and $w_q$ upward if the source–target domain gap is large.</li>
+              <li>Consider domain gaps from visual appearance, physics, and embodiment; since no formal estimator is assumed, apply this adjustment heuristically.</li>
+              <li>Perform a simple search within the range $(w_n, w_q)$ to find the optimal mixing ratio.</li>
+            </ol>
+          </div>
+        </details>
         
         <!-- <p>
           Co-training improves the quality of learned representations, enabling the model to rapidly adapt to challenging, unseen long-horizon dexterous tasks. When fine-tuned with a small number of task-specific demonstrations (n=200), the co-trained model consistently outperforms the baseline, exhibiting better precision, stability, and task completion across multi-step manipulation sequences.

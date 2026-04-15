@@ -910,7 +910,7 @@
       <h1>A Mechanistic Analysis of Sim-and-Real Co-Training in Generative Robot Policies</h1>
 
       <p class="hero-tagline">
-        Investigating the intrinsic working principles of co-training through theoretical analysis and empirical study
+        Investigating the intrinsic effects of co-training through theoretical analysis and empirical study
       </p>
 
       <div class="hero-meta">
@@ -922,7 +922,7 @@
           <a href="https://www.cs.utexas.edu/~yukez/" target="_blank" rel="noopener noreferrer">Yuke Zhu</a><sup>1</sup>
         </p>
         <p class="hero-affiliations">
-          <sup>1</sup>University of Texas at Austin &nbsp;&middot;&nbsp; <sup>2</sup>Amazon FAR
+          <sup>1</sup>The University of Texas at Austin &nbsp;&middot;&nbsp; <sup>2</sup>Amazon FAR
         </p>
       </div>
 
@@ -1070,7 +1070,10 @@
       </div>
 
       <div class="figure" style="margin-top: 2rem;">
-        <img src="images/teaser_small.svg" alt="importance reweighting effect" style="width:60%;">
+        <div id="teaser-anim-wrap" style="position:relative; width:60%; margin:0 auto; aspect-ratio: 433.459/265.698;">
+          <img id="teaser-final-img" src="images/teaser_small.svg" alt="importance reweighting effect" style="position:absolute; top:0; left:0; width:100%; height:100%; opacity:0; transition: opacity 0.8s ease;">
+          <canvas id="teaser-anim-canvas" style="position:absolute; top:0; left:0; width:100%; height:100%; transition: opacity 0.8s ease;"></canvas>
+        </div>
       </div>
     </section>
 
@@ -1120,7 +1123,7 @@
         <figcaption style="margin-top: 1.25rem;">
           <strong>Finding 1:</strong> In <em>disjoint</em>, no transfer occurs; in <em>structured aligned</em>, the output is reconstructed with high fidelity; in <em>overlapping</em>, predictions are bimodal.
           <strong>Finding 2:</strong> Structured alignment explains ~50% of loss variance, while the mixing ratio accounts for only ~20%. 
-          The overall importance reweighting effect is constrained by the underlying representation alignment&mdash;changing $w$ alone cannot compensate for poorly aligned representations.
+          The overall importance reweighting effect is constrained by the underlying representation alignment &mdash; changing $w$ alone cannot compensate for poorly aligned representations.
           <strong> Finding 3:</strong> With appropriate mixing ratio, co-training can even achieve surprisingly good OOD generalization, e.g. in structured aligned scenario with $w=0.1$ above.
         </figcaption>
       </div>
@@ -1137,11 +1140,11 @@
     <!-- ===== Real Robotic Observations ===== -->
     <section id="real-robotic-observations">
       <div class="prose">
-        <h2>Real Robotic Observations</h2>
+        <h2>Observations on Real Robots</h2>
         <h3>Alignment Can Be Learned Implicitly</h3>
         <p>
           We visualize the latent embeddings with UMAP across different mixing ratios. 
-          Within a certain range of balanced mixing ratios ($w \in [0.016, 0.3]$), the shallow layers exhibit <em>local geometry alignment</em> while the deep layer features show <em>global alignment</em> &mdash;all without any explicit alignment objective. 
+          Within a certain range of balanced mixing ratios ($w \in [0.016, 0.3]$), the shallow layers exhibit <em>local geometry alignment</em> while the deep layer features show <em>global alignment</em> &mdash; all without any explicit alignment objective. 
           The phenomenon holds consistently across different tasks.
         </p>
       </div>
@@ -1468,8 +1471,8 @@
 
         <p>
           <span style="color: #b0b0b0; font-size: 0.82rem; font-style: italic;"><strong>Note:</strong> You can also find a more general discussion <a href="https://arxiv.org/abs/2602.01067" target="_blank" rel="noopener noreferrer">here</a> if this really interests you.</span>
-          <br>
-          <span style="color: #b0b0b0; font-size: 0.82rem; font-style: italic;">Disclaimer: The discussions here are only the perspective of Yu Lei, and do not represent other authors or members in UT RPL lab.</span>
+          <!-- <br>
+          <span style="color: #b0b0b0; font-size: 0.82rem; font-style: italic;">Disclaimer: The discussions here are only the perspective of Yu Lei, and do not represent other authors or members in UT RPL lab.</span> -->
         </p>
       </div>
     </section>
@@ -1537,9 +1540,9 @@
         <h2>Citation</h2>
         <div class="citation-block">
           <pre><code>@article{lei2025cotraining,
-  title={A Mechanistic Analysis of Sim-and-Real Co-Training in Generative Policies},
+  title={A Mechanistic Analysis of Sim-and-Real Co-Training in Generative Robot Policies},
   author={Yu Lei and Minghuan Liu and Abhiram Maddukuri and Zhenyu Jiang and Yuke Zhu},
-  year={2025},
+  year={2026},
   eprint={2602.01067},
   archivePrefix={arXiv},
   primaryClass={cs.RO},
@@ -1871,20 +1874,28 @@
           if (endIdx < 1) continue;
 
           var col = p.g === 0 ? C.colA : C.colB;
+          var sp = p.path[0];
+          var ep = p.path[p.path.length - 1];
+          var grad = ctx.createLinearGradient(sp.x, sp.y, ep.x, ep.y);
+          grad.addColorStop(0, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + (C.lineA * 1.8) + ')');
+          grad.addColorStop(0.5, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + (C.lineA * 0.25) + ')');
+          grad.addColorStop(1, 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + (C.lineA * 0.05) + ')');
 
           ctx.beginPath();
           ctx.moveTo(p.path[0].x, p.path[0].y);
           for (var j = 1; j <= endIdx; j++) {
             ctx.lineTo(p.path[j].x, p.path[j].y);
           }
-          ctx.strokeStyle = 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + C.lineA + ')';
+          ctx.strokeStyle = grad;
           ctx.lineWidth = C.lineW;
           ctx.stroke();
 
           var hp = p.path[endIdx];
+          var headT = endIdx / (p.path.length - 1);
+          var dotAlpha = C.dotA * Math.max(0.05, 1 - headT * 0.95);
           ctx.beginPath();
           ctx.arc(hp.x, hp.y, C.dotR, 0, Math.PI * 2);
-          ctx.fillStyle = 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + C.dotA + ')';
+          ctx.fillStyle = 'rgba(' + col[0] + ',' + col[1] + ',' + col[2] + ',' + dotAlpha + ')';
           ctx.fill();
         }
 
@@ -1894,6 +1905,471 @@
       resize();
       window.addEventListener('resize', function() { resize(); });
       requestAnimationFrame(frame);
+    })();
+
+    // ===== Teaser Figure Animation =====
+    (function() {
+      var wrap = document.getElementById('teaser-anim-wrap');
+      var canvas = document.getElementById('teaser-anim-canvas');
+      var finalImg = document.getElementById('teaser-final-img');
+      if (!canvas || !wrap) return;
+      var ctx = canvas.getContext('2d');
+
+      var VW = 433.459, VH = 265.698;
+      var ANIM_DUR = 6000;
+
+      // Left manifold bell curve path (extracted from SVG line2d_1)
+      var manifold = [
+        [10.49,243.98],[10.64,206.59],[10.87,193.81],[11.20,187.42],[11.62,183.16],
+        [12.20,179.62],[12.87,176.78],[13.72,174.17],[14.73,171.81],[15.87,169.68],
+        [17.27,167.55],[18.97,165.42],[20.75,163.53],[22.81,161.63],[25.48,159.50],
+        [28.54,157.37],[31.98,155.24],[36.23,152.88],[41.36,150.27],[48.41,146.96],
+        [65.77,138.92],[70.23,136.55],[73.35,134.66],[75.69,133.00],[77.37,131.58],
+        [78.71,130.16],[79.55,128.98],[80.14,127.80],[80.46,126.61],[80.51,125.43],
+        [80.30,124.25],[79.82,123.06],[79.08,121.88],[78.08,120.70],[76.57,119.28],
+        [74.74,117.86],[72.23,116.20],[68.95,114.31],[64.34,111.94],[57.81,108.87],
+        [39.92,100.58],[34.48,97.74],[30.41,95.38],[27.14,93.25],[24.25,91.12],
+        [21.74,88.99],[19.60,86.86],[17.80,84.73],[16.31,82.60],[15.08,80.47],
+        [14.00,78.10],[13.15,75.74],[12.45,73.14],[11.86,70.06],[11.40,66.51],
+        [11.06,62.01],[10.81,55.63],[10.63,44.50],[10.51,19.90],[10.49,7.59]
+      ];
+
+      // Top trajectory: goes UP toward real distribution
+      var pathTop = [
+        [84.96,125.784],[89.10,124.20],[93.12,122.41],[97.02,120.39],[100.81,118.16],
+        [104.49,115.74],[108.08,113.15],[112.45,109.69],[116.71,106.04],[121.72,101.47],
+        [129.95,93.64],[138.21,85.86],[143.27,81.38],[147.59,77.84],[152.02,74.50],
+        [155.67,72.01],[159.41,69.70],[163.26,67.59],[167.22,65.69],[171.31,64.00],
+        [175.52,62.55],[179.86,61.33],[184.33,60.35],[188.93,59.62],[193.66,59.12],
+        [198.52,58.85],[203.49,58.78],[208.57,58.93],[213.77,59.28],[220.41,59.99],
+        [227.20,60.96],[235.50,62.41],[245.35,64.42],[256.76,66.98],[278.19,71.85],
+        [288.03,73.81],[294.93,75.00],[301.71,75.95],[307.02,76.52],[312.22,76.87],
+        [317.30,77.02],[322.27,76.94],[327.11,76.64],[331.81,76.09],[336.38,75.29],
+        [340.81,74.24],[345.10,72.93],[348.22,71.77],[351.24,70.44],[353.20,69.44]
+      ];
+
+      // Bottom trajectory: goes DOWN toward sim distribution
+      var pathBot = [
+        [84.96,125.784],[89.10,127.36],[93.12,129.16],[97.02,131.18],[100.81,133.41],
+        [104.49,135.83],[108.08,138.42],[112.45,141.88],[116.71,145.53],[121.72,150.10],
+        [129.95,157.93],[138.21,165.71],[143.27,170.18],[147.59,173.73],[152.02,177.07],
+        [155.67,179.56],[159.41,181.87],[163.26,183.98],[167.22,185.88],[171.31,187.57],
+        [175.52,189.02],[179.86,190.24],[184.33,191.21],[188.93,191.95],[193.66,192.45],
+        [198.52,192.72],[203.49,192.79],[208.57,192.64],[213.77,192.28],[220.41,191.58],
+        [227.20,190.61],[235.50,189.16],[245.35,187.15],[256.76,184.59],[278.19,179.72],
+        [288.03,177.75],[294.93,176.57],[301.71,175.62],[307.02,175.05],[312.22,174.70],
+        [317.30,174.55],[322.27,174.63],[327.11,174.93],[331.81,175.48],[336.38,176.27],
+        [340.81,177.33],[345.10,178.64],[348.22,179.80],[351.24,181.13],[353.20,182.13]
+      ];
+
+      // Right-side distribution parameters
+      var REAL_CY = 80, SIM_CY = 170, DIST_SIGMA = 28;
+      var DIST_X = 415.27, DIST_MAX_DEV = 70;
+
+      // Colors
+      var COL_GOLD = '#edd6a8';
+      var COL_RED = '#d62828';
+      var COL_BLUE = '#3a86ff';
+
+      // Decomposition geometry (extracted from SVG patches/line elements)
+      var DT = {
+        dot: [186.612, 59.956],
+        red:   [[188.313, 58.901], [255.404, 17.308]],
+        blue:  [[188.313, 61.010], [217.783, 79.280]],
+        black: [[188.572, 59.551], [292.041, 38.169]],
+        extRed:  {f:[188.314,58.900], c:[233.640,30.801], t:[276.114,4.469]},
+        extBlue: {f:[188.314,61.011], c:[233.640,89.110], t:[276.114,115.443]},
+        par: [[[224.233,83.279],[299.475,36.633]],
+              [[261.854,13.309],[299.475,36.633]]]
+      };
+      var DB = {
+        dot: [186.612, 191.612],
+        red:   [[188.313, 190.558], [217.783, 172.288]],
+        blue:  [[188.313, 192.667], [255.404, 234.260]],
+        black: [[188.572, 192.017], [292.041, 213.399]],
+        extRed:  {f:[188.314,190.558], c:[233.640,162.458], t:[276.114,136.125]},
+        extBlue: {f:[188.314,192.667], c:[233.640,220.767], t:[276.114,247.099]},
+        par: [[[224.233,168.289],[299.475,214.935]],
+              [[261.854,238.259],[299.475,214.935]]]
+      };
+
+      var w, h, dpr, S;
+      var started = false, startTime = 0;
+      var realDistPts = null, simDistPts = null;
+
+      function resize() {
+        var rect = wrap.getBoundingClientRect();
+        w = rect.width; h = w * VH / VW;
+        dpr = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = w * dpr; canvas.height = h * dpr;
+        canvas.style.width = w + 'px'; canvas.style.height = h + 'px';
+        ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+        S = w / VW;
+      }
+
+      function X(v) { return v * S; }
+      function Y(v) { return v * S; }
+      function easeInOut(t) { return t < 0.5 ? 4*t*t*t : 1 - Math.pow(-2*t+2, 3) / 2; }
+
+      // Helper: stroke a polyline path
+      function strokePath(pts) {
+        ctx.beginPath();
+        ctx.moveTo(X(pts[0][0]), Y(pts[0][1]));
+        for (var i = 1; i < pts.length; i++) ctx.lineTo(X(pts[i][0]), Y(pts[i][1]));
+      }
+
+      // ---- Manifold: 14-layer glow matching SVG gradient ----
+      function drawManifold(alpha) {
+        var N = 14;
+        ctx.lineCap = 'round';
+        for (var k = 0; k < N; k++) {
+          var t = k / (N - 1);
+          var lw = 19.5 - t * 10.3;            // 19.5 -> 9.2
+          var op = 0.035 * Math.pow(1 - t * 0.95, 1.2);
+          var gray = Math.round(140 + t * 80);  // #8c -> #dc
+          strokePath(manifold);
+          ctx.strokeStyle = 'rgba(' + gray + ',' + gray + ',' + gray + ',' + (op * alpha) + ')';
+          ctx.lineWidth = X(lw);
+          ctx.stroke();
+        }
+        // Subtle dark core
+        strokePath(manifold);
+        ctx.strokeStyle = 'rgba(53,51,51,' + (0.55 * alpha) + ')';
+        ctx.lineWidth = X(1.5);
+        ctx.stroke();
+      }
+
+      // ---- Right-side distributions: gradient fill + colored glow ----
+      function ensureDistPts() {
+        if (realDistPts) return;
+        realDistPts = []; simDistPts = [];
+        for (var y = 8; y <= 244; y++) {
+          var dr = (y - REAL_CY) / DIST_SIGMA;
+          var ds = (y - SIM_CY) / DIST_SIGMA;
+          realDistPts.push([DIST_X - DIST_MAX_DEV * Math.exp(-0.5 * dr * dr), y]);
+          simDistPts.push([DIST_X - DIST_MAX_DEV * Math.exp(-0.5 * ds * ds), y]);
+        }
+      }
+
+      function drawDist(pts, cy, r, g, b, alpha) {
+        // 1) Gradient fill inside the bell shape
+        ctx.save();
+        ctx.beginPath();
+        ctx.moveTo(X(DIST_X), Y(pts[0][1]));
+        for (var i = 0; i < pts.length; i++) ctx.lineTo(X(pts[i][0]), Y(pts[i][1]));
+        ctx.lineTo(X(DIST_X), Y(pts[pts.length - 1][1]));
+        ctx.closePath();
+        var grd = ctx.createRadialGradient(
+          X(DIST_X - DIST_MAX_DEV * 0.55), Y(cy), X(2),
+          X(DIST_X - DIST_MAX_DEV * 0.55), Y(cy), Y(DIST_SIGMA * 2.8)
+        );
+        grd.addColorStop(0,    'rgba(' + r + ',' + g + ',' + b + ',' + (0.32 * alpha) + ')');
+        grd.addColorStop(0.45, 'rgba(' + r + ',' + g + ',' + b + ',' + (0.12 * alpha) + ')');
+        grd.addColorStop(1,    'rgba(' + r + ',' + g + ',' + b + ',0)');
+        ctx.fillStyle = grd;
+        ctx.fill();
+        ctx.restore();
+
+        // 2) Colored glow layers
+        ctx.lineCap = 'round';
+        var N = 10;
+        for (var k = 0; k < N; k++) {
+          var t = k / (N - 1);
+          var lw = 18.5 - t * 10;
+          var op = 0.028 * Math.pow(1 - t * 0.9, 1.2);
+          strokePath(pts);
+          ctx.strokeStyle = 'rgba(' + r + ',' + g + ',' + b + ',' + (op * alpha) + ')';
+          ctx.lineWidth = X(lw);
+          ctx.stroke();
+        }
+
+        // 3) Dark core outline
+        strokePath(pts);
+        ctx.strokeStyle = 'rgba(53,51,51,' + (0.75 * alpha) + ')';
+        ctx.lineWidth = X(1.5);
+        ctx.stroke();
+      }
+
+      function drawRightDists(alpha) {
+        ensureDistPts();
+        drawDist(realDistPts, REAL_CY, 200, 100, 100, alpha);
+        drawDist(simDistPts,  SIM_CY,  100, 110, 200, alpha);
+      }
+
+      // ---- Trajectory trail with glow ----
+      function drawTrail(path, endIdx) {
+        if (endIdx < 1) return;
+        // Soft glow behind trail
+        ctx.beginPath();
+        ctx.moveTo(X(path[0][0]), Y(path[0][1]));
+        for (var j = 1; j <= endIdx; j++) ctx.lineTo(X(path[j][0]), Y(path[j][1]));
+        ctx.strokeStyle = 'rgba(237,214,168,0.12)';
+        ctx.lineWidth = X(10);
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        // Main dashed trail (dash ratio matches SVG 21:12.25)
+        ctx.beginPath();
+        ctx.moveTo(X(path[0][0]), Y(path[0][1]));
+        for (var j = 1; j <= endIdx; j++) ctx.lineTo(X(path[j][0]), Y(path[j][1]));
+        ctx.setLineDash([X(7), X(4.08)]);
+        ctx.strokeStyle = 'rgba(237,214,168,0.98)';
+        ctx.lineWidth = X(3.5);
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        ctx.setLineDash([]);
+      }
+
+      // ---- Arrow utilities ----
+      function drawArrowHead(ex, ey, dx, dy, color, hl, lw) {
+        var len = Math.sqrt(dx * dx + dy * dy);
+        if (len < 0.01) return;
+        var nx = dx / len, ny = dy / len;
+        ctx.beginPath();
+        ctx.moveTo(ex, ey);
+        ctx.lineTo(ex - hl * (nx - 0.4 * ny), ey - hl * (ny + 0.4 * nx));
+        ctx.lineTo(ex - hl * (nx + 0.4 * ny), ey - hl * (ny - 0.4 * nx));
+        ctx.closePath();
+        ctx.fillStyle = color;
+        ctx.fill();
+        if (lw) {
+          ctx.strokeStyle = color;
+          ctx.lineWidth = lw;
+          ctx.lineJoin = 'miter';
+          ctx.stroke();
+        }
+      }
+
+      function drawSolidArrow(from, to, color, lw) {
+        var x1 = X(from[0]), y1 = Y(from[1]), x2 = X(to[0]), y2 = Y(to[1]);
+        ctx.beginPath(); ctx.moveTo(x1, y1); ctx.lineTo(x2, y2);
+        ctx.strokeStyle = color; ctx.lineWidth = X(lw); ctx.lineCap = 'round';
+        ctx.stroke();
+        drawArrowHead(x2, y2, x2 - x1, y2 - y1, color, X(7), X(lw));
+      }
+
+      function drawDot(px, py) {
+        ctx.beginPath();
+        ctx.arc(px, py, X(4), 0, Math.PI * 2);
+        ctx.fillStyle = '#fff';
+        ctx.strokeStyle = '#000';
+        ctx.lineWidth = X(1.6);
+        ctx.fill();
+        ctx.stroke();
+      }
+
+      // ---- Trail arrowhead (golden) ----
+      function drawTrailArrow(path, endIdx) {
+        if (endIdx < 2) return;
+        var p1 = path[endIdx - 1], p2 = path[endIdx];
+        ctx.globalAlpha = 0.98;
+        drawArrowHead(X(p2[0]), Y(p2[1]),
+          X(p2[0] - p1[0]), Y(p2[1] - p1[1]), COL_GOLD, X(7), X(3.5));
+        ctx.globalAlpha = 1;
+      }
+
+      // ---- Decomposition (fixed SVG coordinates) ----
+      function drawDashedCurve(ext, color, lw, dash, alpha) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.setLineDash([X(dash[0]), X(dash[1])]);
+        ctx.beginPath();
+        ctx.moveTo(X(ext.f[0]), Y(ext.f[1]));
+        ctx.quadraticCurveTo(X(ext.c[0]), Y(ext.c[1]), X(ext.t[0]), Y(ext.t[1]));
+        ctx.strokeStyle = color;
+        ctx.lineWidth = X(lw);
+        ctx.lineCap = 'round';
+        ctx.stroke();
+        ctx.setLineDash([]);
+        // Small arrowhead at endpoint
+        var dx = ext.t[0] - ext.c[0], dy = ext.t[1] - ext.c[1];
+        drawArrowHead(X(ext.t[0]), Y(ext.t[1]), X(dx), Y(dy), color, X(4.5), X(lw));
+        ctx.restore();
+      }
+
+      function drawDecomp(dec, alpha) {
+        ctx.save();
+        // 1) Dashed gray extension curves (background layer)
+        drawDashedCurve(dec.extRed,  '#8c8c8c', 3, [4, 3], alpha * 0.85);
+        drawDashedCurve(dec.extBlue, '#8c8c8c', 3, [4, 3], alpha * 0.85);
+        // 2) Parallelogram dashed sides
+        ctx.globalAlpha = alpha * 0.7;
+        ctx.setLineDash([X(3), X(2.4)]);
+        ctx.lineWidth = X(3);
+        ctx.strokeStyle = '#8c8c8c';
+        ctx.lineCap = 'round';
+        for (var p = 0; p < dec.par.length; p++) {
+          ctx.beginPath();
+          ctx.moveTo(X(dec.par[p][0][0]), Y(dec.par[p][0][1]));
+          ctx.lineTo(X(dec.par[p][1][0]), Y(dec.par[p][1][1]));
+          ctx.stroke();
+        }
+        ctx.setLineDash([]);
+        // 3) Solid colored arrows
+        ctx.globalAlpha = alpha;
+        drawSolidArrow(dec.blue[0],  dec.blue[1],  COL_BLUE, 5);
+        drawSolidArrow(dec.red[0],   dec.red[1],   COL_RED,  5);
+        drawSolidArrow(dec.black[0], dec.black[1], '#000',    5);
+        // 4) White dot at origin
+        drawDot(X(dec.dot[0]), Y(dec.dot[1]));
+        ctx.restore();
+      }
+
+      // ---- Labels ----
+      function drawLabels(alpha) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        ctx.font = (11 * S) + 'px serif';
+        ctx.fillStyle = '#1a1a1a';
+        ctx.textAlign = 'left';
+        ctx.fillText('noisy action a\u1D57', X(2), Y(261));
+        ctx.fillText('clean action a\u2070', X(325), Y(261));
+
+        ctx.font = 'italic ' + (10 * S) + 'px serif';
+        ctx.fillStyle = COL_GOLD;
+        ctx.fillText('denoising process', X(37), Y(194));
+
+        ctx.font = 'italic ' + (11 * S) + 'px serif';
+        ctx.fillStyle = COL_RED;
+        ctx.fillText('a', X(332), Y(52));
+        ctx.font = (8 * S) + 'px serif';
+        ctx.fillText('real', X(342), Y(55));
+
+        ctx.font = 'italic ' + (11 * S) + 'px serif';
+        ctx.fillStyle = COL_BLUE;
+        ctx.fillText('a', X(332), Y(200));
+        ctx.font = (8 * S) + 'px serif';
+        ctx.fillText('sim', X(342), Y(203));
+        ctx.restore();
+      }
+
+      function drawDecompLabels(alpha) {
+        ctx.save();
+        ctx.globalAlpha = alpha;
+        // g_it . S_it (red, above top decomposition)
+        ctx.font = 'italic ' + (12.8 * S) + 'px serif';
+        ctx.textAlign = 'left';
+        ctx.fillStyle = COL_RED;
+        ctx.fillText('g\u1D62\u209C\u00B7S\u1D62\u209C', X(192), Y(17));
+        // g_is . S_is (blue, below top decomposition)
+        ctx.fillStyle = COL_BLUE;
+        ctx.fillText('g\u1D62\u209B\u00B7S\u1D62\u209B', X(175), Y(97));
+        // S_{w_1} near top black arrow endpoint
+        ctx.font = 'italic ' + (11.5 * S) + 'px serif';
+        ctx.fillStyle = '#1a1a1a';
+        ctx.fillText('S', X(304), Y(37));
+        ctx.font = (7.5 * S) + 'px serif';
+        ctx.fillText('w\u2081', X(313), Y(41));
+        // S_{w_2} near bottom black arrow endpoint
+        ctx.font = 'italic ' + (11.5 * S) + 'px serif';
+        ctx.fillText('S', X(304), Y(215));
+        ctx.font = (7.5 * S) + 'px serif';
+        ctx.fillText('w\u2082', X(313), Y(219));
+        ctx.restore();
+      }
+
+      // ---- Animation frame ----
+      function frame(ts) {
+        if (!started) return;
+        if (!startTime) startTime = ts;
+        var t = Math.min((ts - startTime) / ANIM_DUR, 1);
+
+        ctx.clearRect(0, 0, w, h);
+        ctx.fillStyle = '#faf8f3';
+        ctx.fillRect(0, 0, w, h);
+
+        // Phase timing
+        var manifoldAlpha = Math.min(t / 0.06, 1);
+        var labelAlpha    = Math.min(t / 0.10, 1);
+
+        // Trajectory with pause for decomposition display
+        //   Phase 1 (0.06-0.33): move dot to ~47% (decomp midpoint)
+        //   Phase 2 (0.33-0.62): pause while decomp is shown
+        //   Phase 3 (0.62-0.88): continue to 100%
+        var trajProgress;
+        if      (t < 0.06) trajProgress = 0;
+        else if (t < 0.33) trajProgress = easeInOut((t - 0.06) / 0.27) * 0.47;
+        else if (t < 0.62) trajProgress = 0.47;
+        else if (t < 0.88) trajProgress = 0.47 + easeInOut((t - 0.62) / 0.26) * 0.53;
+        else               trajProgress = 1;
+
+        // Decomposition alpha (fade in/out during pause)
+        var decompAlpha = 0;
+        if (t >= 0.31 && t < 0.65) {
+          if      (t < 0.36) decompAlpha = (t - 0.31) / 0.05;
+          else if (t < 0.59) decompAlpha = 1;
+          else               decompAlpha = (0.65 - t) / 0.06;
+        }
+
+        // Distributions fade in during second half
+        var distAlpha = Math.max(0, Math.min((t - 0.52) / 0.28, 1));
+
+        // ---- Draw layers ----
+        drawManifold(manifoldAlpha);
+        drawLabels(labelAlpha);
+        if (distAlpha > 0) drawRightDists(distAlpha);
+
+        // Trajectories
+        var endIdxTop = Math.floor(trajProgress * (pathTop.length - 1));
+        var endIdxBot = Math.floor(trajProgress * (pathBot.length - 1));
+        drawTrail(pathTop, endIdxTop);
+        drawTrail(pathBot, endIdxBot);
+
+        // Trail arrowheads (appear when trajectories complete)
+        if (trajProgress >= 1) {
+          drawTrailArrow(pathTop, pathTop.length - 1);
+          drawTrailArrow(pathBot, pathBot.length - 1);
+        }
+
+        // Decomposition arrows
+        if (decompAlpha > 0) {
+          drawDecomp(DT, decompAlpha);
+          drawDecomp(DB, decompAlpha);
+          drawDecompLabels(decompAlpha * 0.9);
+        }
+
+        // Moving dots (fade out when decomp shows its own dots)
+        if (trajProgress > 0 && decompAlpha < 0.5) {
+          var dotAlpha = Math.max(0, 1 - decompAlpha * 2);
+          ctx.globalAlpha = dotAlpha;
+          if (endIdxTop >= 1) drawDot(X(pathTop[endIdxTop][0]), Y(pathTop[endIdxTop][1]));
+          if (endIdxBot >= 1) drawDot(X(pathBot[endIdxBot][0]), Y(pathBot[endIdxBot][1]));
+          ctx.globalAlpha = 1;
+        }
+
+        if (t < 1) {
+          requestAnimationFrame(frame);
+        } else {
+          // Crossfade to final SVG
+          setTimeout(function() {
+            finalImg.style.opacity = '1';
+            canvas.style.opacity = '0';
+          }, 400);
+        }
+      }
+
+      function startAnim() {
+        if (started) return;
+        started = true;
+        startTime = 0;
+        resize();
+        requestAnimationFrame(frame);
+      }
+
+      resize();
+      window.addEventListener('resize', resize);
+
+      // Start animation when scrolled into view
+      if ('IntersectionObserver' in window) {
+        var obs = new IntersectionObserver(function(entries) {
+          if (entries[0].isIntersecting) {
+            startAnim();
+            obs.disconnect();
+          }
+        }, { threshold: 0.3 });
+        obs.observe(wrap);
+      } else {
+        startAnim();
+      }
     })();
   </script>
 

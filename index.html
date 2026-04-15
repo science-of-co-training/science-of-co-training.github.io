@@ -947,7 +947,7 @@
       <li><a href="#Overview" data-section="Overview">Overview</a></li>
       <li><a href="#two-effects" data-section="two-effects">Theoretical Insights</a></li>
       <li><a href="#toy-models" data-section="toy-models">Illustrative Toy Models</a></li>
-      <li><a href="#real-robotic-observations" data-section="real-robotic-observations">Real Robotic Observations</a></li>
+      <li><a href="#real-robotic-observations" data-section="real-robotic-observations">Observations on Real Robots</a></li>
       <li><a href="#unified-view" data-section="unified-view">A Unified View of Co-Training Methods</a></li>
       <li><a href="#takeaway" data-section="takeaway">Takeaways</a></li>
       <li><a href="#citation" data-section="citation">Citation</a></li>
@@ -2218,27 +2218,35 @@
       function drawLabels(alpha) {
         ctx.save();
         ctx.globalAlpha = alpha;
-        ctx.font = (11 * S) + 'px serif';
+        ctx.font = (13 * S) + 'px serif';
         ctx.fillStyle = '#1a1a1a';
         ctx.textAlign = 'left';
         ctx.fillText('noisy action a\u1D57', X(2), Y(261));
         ctx.fillText('clean action a\u2070', X(325), Y(261));
 
-        ctx.font = 'italic ' + (10 * S) + 'px serif';
+        ctx.font = 'italic ' + (12 * S) + 'px serif';
         ctx.fillStyle = COL_GOLD;
         ctx.fillText('denoising process', X(37), Y(194));
 
-        ctx.font = 'italic ' + (11 * S) + 'px serif';
+        // a_real label (italic a + upright subscript, red)
+        var mainSz = 13 * S;
+        ctx.font = 'italic ' + mainSz + 'px serif';
         ctx.fillStyle = COL_RED;
-        ctx.fillText('a', X(332), Y(52));
-        ctx.font = (8 * S) + 'px serif';
-        ctx.fillText('real', X(342), Y(55));
+        var ax = X(332), ay = Y(52);
+        ctx.fillText('a', ax, ay);
+        var aW = ctx.measureText('a').width;
+        ctx.font = (9.5 * S) + 'px serif';
+        ctx.fillText('real', ax + aW + X(0.5), ay + mainSz * 0.33);
 
-        ctx.font = 'italic ' + (11 * S) + 'px serif';
+        // a_sim label (italic a + upright subscript, blue)
+        ctx.font = 'italic ' + mainSz + 'px serif';
         ctx.fillStyle = COL_BLUE;
-        ctx.fillText('a', X(332), Y(200));
-        ctx.font = (8 * S) + 'px serif';
-        ctx.fillText('sim', X(342), Y(203));
+        var ax2 = X(332), ay2 = Y(200);
+        ctx.fillText('a', ax2, ay2);
+        aW = ctx.measureText('a').width;
+        ctx.font = (9.5 * S) + 'px serif';
+        ctx.fillText('sim', ax2 + aW + X(0.5), ay2 + mainSz * 0.33);
+
         ctx.restore();
       }
 
@@ -2246,7 +2254,7 @@
         ctx.save();
         ctx.globalAlpha = alpha;
         // g_it . S_it (red, above top decomposition)
-        ctx.font = 'italic ' + (12.8 * S) + 'px serif';
+        ctx.font = 'italic ' + (15 * S) + 'px serif';
         ctx.textAlign = 'left';
         ctx.fillStyle = COL_RED;
         ctx.fillText('g\u1D62\u209C\u00B7S\u1D62\u209C', X(192), Y(17));
@@ -2254,15 +2262,15 @@
         ctx.fillStyle = COL_BLUE;
         ctx.fillText('g\u1D62\u209B\u00B7S\u1D62\u209B', X(175), Y(97));
         // S_{w_1} near top black arrow endpoint
-        ctx.font = 'italic ' + (11.5 * S) + 'px serif';
+        ctx.font = 'italic ' + (13.5 * S) + 'px serif';
         ctx.fillStyle = '#1a1a1a';
         ctx.fillText('S', X(304), Y(37));
-        ctx.font = (7.5 * S) + 'px serif';
+        ctx.font = (9 * S) + 'px serif';
         ctx.fillText('w\u2081', X(313), Y(41));
         // S_{w_2} near bottom black arrow endpoint
-        ctx.font = 'italic ' + (11.5 * S) + 'px serif';
+        ctx.font = 'italic ' + (13.5 * S) + 'px serif';
         ctx.fillText('S', X(304), Y(215));
-        ctx.font = (7.5 * S) + 'px serif';
+        ctx.font = (9 * S) + 'px serif';
         ctx.fillText('w\u2082', X(313), Y(219));
         ctx.restore();
       }
